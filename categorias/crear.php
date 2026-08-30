@@ -14,12 +14,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Validaciones del servidor
     if ($nombre === "") {
+
         $error = "El nombre de la categoría es obligatorio.";
 
     } elseif (strlen($nombre) > 100) {
+
         $error = "El nombre no puede superar los 100 caracteres.";
 
     } elseif (strlen($descripcion) > 255) {
+
         $error = "La descripción no puede superar los 255 caracteres.";
 
     } else {
@@ -31,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                       LIMIT 1";
 
         $stmtExiste = $pdo->prepare($sqlExiste);
+
         $stmtExiste->execute([
             ":nombre" => $nombre
         ]);
@@ -53,7 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ":descripcion" => $descripcion
             ]);
 
-            $_SESSION["mensaje"] = "Categoría registrada correctamente.";
+            $_SESSION["mensaje"] =
+                "Categoría registrada correctamente.";
 
             header("Location: listar.php");
             exit;
@@ -69,10 +74,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Nueva categoría - TecnoStock</title>
+    <title>
+        Nueva categoría - TecnoStock
+    </title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -87,13 +96,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <div class="container">
 
-        <a class="navbar-brand"
-           href="../dashboard.php">
+        <a
+            class="navbar-brand"
+            href="../dashboard.php"
+        >
             TecnoStock
         </a>
 
-        <a href="listar.php"
-           class="btn btn-outline-light">
+        <a
+            href="listar.php"
+            class="btn btn-outline-light"
+        >
             Volver a categorías
         </a>
 
@@ -110,7 +123,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="mb-4">
 
-                <h1>Nueva categoría</h1>
+                <h1>
+                    Nueva categoría
+                </h1>
 
                 <p class="text-muted">
                     Registra una categoría para clasificar
@@ -123,7 +138,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php if ($error): ?>
 
                 <div class="alert alert-danger">
+
                     <?= htmlspecialchars($error) ?>
+
                 </div>
 
             <?php endif; ?>
@@ -133,12 +150,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 <div class="card-body p-4">
 
-                    <form method="POST">
+                    <form
+                        method="POST"
+                        id="formCategoria"
+                        novalidate
+                    >
+
+                        <!-- NOMBRE -->
 
                         <div class="mb-3">
 
-                            <label for="nombre"
-                                   class="form-label">
+                            <label
+                                for="nombre"
+                                class="form-label"
+                            >
                                 Nombre *
                             </label>
 
@@ -152,17 +177,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 value="<?= htmlspecialchars($nombre) ?>"
                             >
 
+                            <div
+                                id="mensajeNombre"
+                                class="invalid-feedback"
+                            >
+                                Ingresa un nombre válido.
+                            </div>
+
                             <div class="form-text">
-                                Ejemplo: Computadores, Periféricos o Accesorios.
+                                Ejemplo: Computadores,
+                                Periféricos o Accesorios.
                             </div>
 
                         </div>
 
 
+                        <!-- DESCRIPCIÓN -->
+
                         <div class="mb-4">
 
-                            <label for="descripcion"
-                                   class="form-label">
+                            <label
+                                for="descripcion"
+                                class="form-label"
+                            >
                                 Descripción
                             </label>
 
@@ -175,22 +212,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             ><?= htmlspecialchars($descripcion) ?></textarea>
 
                             <div class="form-text">
-                                Máximo 255 caracteres.
+
+                                Máximo
+
+                                <span id="contadorDescripcion">
+                                    0
+                                </span>/255 caracteres.
+
                             </div>
 
                         </div>
 
 
+                        <!-- BOTONES -->
+
                         <div class="d-flex justify-content-end gap-2">
 
-                            <a href="listar.php"
-                               class="btn btn-secondary">
+                            <a
+                                href="listar.php"
+                                class="btn btn-secondary"
+                            >
                                 Cancelar
                             </a>
 
                             <button
                                 type="submit"
-                                class="btn btn-primary">
+                                class="btn btn-primary"
+                            >
                                 Guardar categoría
                             </button>
 
@@ -207,6 +255,157 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
 
 </div>
+
+
+<script>
+
+const formCategoria =
+    document.getElementById("formCategoria");
+
+const nombreInput =
+    document.getElementById("nombre");
+
+const descripcionInput =
+    document.getElementById("descripcion");
+
+const mensajeNombre =
+    document.getElementById("mensajeNombre");
+
+const contadorDescripcion =
+    document.getElementById("contadorDescripcion");
+
+
+/* =========================
+   VALIDAR NOMBRE
+========================= */
+
+function validarNombre() {
+
+    const nombre =
+        nombreInput.value.trim();
+
+    if (nombre === "") {
+
+        nombreInput.classList.add(
+            "is-invalid"
+        );
+
+        nombreInput.classList.remove(
+            "is-valid"
+        );
+
+        mensajeNombre.textContent =
+            "El nombre de la categoría es obligatorio.";
+
+        return false;
+    }
+
+
+    if (nombre.length > 100) {
+
+        nombreInput.classList.add(
+            "is-invalid"
+        );
+
+        nombreInput.classList.remove(
+            "is-valid"
+        );
+
+        mensajeNombre.textContent =
+            "El nombre no puede superar los 100 caracteres.";
+
+        return false;
+    }
+
+
+    nombreInput.classList.remove(
+        "is-invalid"
+    );
+
+    nombreInput.classList.add(
+        "is-valid"
+    );
+
+    return true;
+}
+
+
+/* =========================
+   CONTADOR DESCRIPCIÓN
+========================= */
+
+function actualizarContador() {
+
+    contadorDescripcion.textContent =
+        descripcionInput.value.length;
+}
+
+
+/* =========================
+   EVENTOS
+========================= */
+
+nombreInput.addEventListener(
+    "input",
+    validarNombre
+);
+
+
+descripcionInput.addEventListener(
+    "input",
+    actualizarContador
+);
+
+
+actualizarContador();
+
+
+/* =========================
+   VALIDAR FORMULARIO
+========================= */
+
+formCategoria.addEventListener(
+    "submit",
+    function (event) {
+
+        let valido = true;
+
+
+        if (!validarNombre()) {
+
+            valido = false;
+        }
+
+
+        if (
+            descripcionInput.value.length > 255
+        ) {
+
+            descripcionInput.classList.add(
+                "is-invalid"
+            );
+
+            valido = false;
+
+        } else {
+
+            descripcionInput.classList.remove(
+                "is-invalid"
+            );
+        }
+
+
+        if (!valido) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+        }
+
+    }
+);
+
+</script>
 
 </body>
 </html>
