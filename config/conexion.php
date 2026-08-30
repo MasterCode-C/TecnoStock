@@ -1,15 +1,19 @@
 <?php
 
-$host = "localhost";
-$db   = "tecnostock";
-$user = "root";
-$pass = "";
+$configFile = __DIR__ . "/config.local.php";
+
+if (!file_exists($configFile)) {
+    die("No se encontró el archivo de configuración de la base de datos.");
+}
+
+$config = require $configFile;
 
 try {
+
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$db;charset=utf8mb4",
-        $user,
-        $pass,
+        "mysql:host={$config['host']};dbname={$config['db']};charset=utf8mb4",
+        $config["user"],
+        $config["pass"],
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -18,5 +22,6 @@ try {
     );
 
 } catch (PDOException $e) {
+
     die("Error de conexión a la base de datos.");
 }
