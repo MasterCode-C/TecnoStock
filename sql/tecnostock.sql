@@ -64,3 +64,7 @@ CREATE TABLE movimiento (
         FOREIGN KEY (id_usuario)
         REFERENCES usuario(id_usuario)
 );
+
+-- Cuenta inicial para pruebas de TecnoStock
+INSERT INTO usuario (nombre, correo, clave, estado)
+VALUES ('Administrador', 'admin@tecnostock.cl', '$2y$12$ZASBI4o0AuE9QCSPGaNMxuOtFeQ.pXeeFNh7iNC7qsReAY9KFcybO', 1);
