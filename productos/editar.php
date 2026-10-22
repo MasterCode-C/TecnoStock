@@ -15,7 +15,6 @@ $id = filter_input(
 );
 
 if (!$id) {
-
     header("Location: listar.php");
     exit;
 }
@@ -48,7 +47,6 @@ $stmtProducto->execute([
 ]);
 
 $producto = $stmtProducto->fetch();
-
 
 if (!$producto) {
 
@@ -143,7 +141,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         trim($_POST["precio"] ?? "");
 
 
-    /* Normalizar precio */
+    /* =========================
+       NORMALIZAR PRECIO
+    ========================= */
 
     $precioLimpio =
         str_replace(
@@ -194,13 +194,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error =
             "La descripción no puede superar los 255 caracteres.";
 
-    } elseif (
-        $precioLimpio === ""
-        || !ctype_digit($precioLimpio)
-    ) {
+    } elseif ($precioLimpio === "") {
+
+        $error =
+            "El precio del producto es obligatorio.";
+
+    } elseif (!ctype_digit($precioLimpio)) {
 
         $error =
             "El precio debe contener solo números. Ejemplo: 12.000.";
+
+    } elseif ((int)$precioLimpio <= 0) {
+
+        $error =
+            "El precio debe ser mayor que $0.";
 
     } elseif (
         filter_var(
@@ -261,15 +268,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             &&
             (int)$idCategoria !== $idCategoriaOriginal
         ) {
-
-            /*
-            No se permite trasladar un producto
-            a una categoría que está inactiva.
-
-            Si el producto ya pertenecía a ella,
-            puede conservarla mientras se edita
-            otro dato.
-            */
 
             $error =
                 "No puedes asignar el producto a una categoría inactiva.";
@@ -622,6 +620,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="row">
 
 
+                            <!-- PRECIO -->
+
                             <div class="col-md-4 mb-3">
 
                                 <label
@@ -650,7 +650,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     >
 
                                     <div class="invalid-feedback">
-                                        Ingresa un precio válido.
+                                        El precio es obligatorio y debe ser mayor que $0.
                                     </div>
 
                                 </div>
@@ -816,7 +816,49 @@ const contadorDescripcion =
 
 
 /* =========================
-   FORMATO PRECIO
+   VALIDAR PRECIO
+========================= */
+
+function validarPrecio() {
+
+    if (!precioInput) {
+        return false;
+    }
+
+    const precioNumerico =
+        precioInput.value.replace(/\D/g, "");
+
+    if (
+        precioNumerico === ""
+        ||
+        Number(precioNumerico) <= 0
+    ) {
+
+        precioInput.classList.add(
+            "is-invalid"
+        );
+
+        precioInput.classList.remove(
+            "is-valid"
+        );
+
+        return false;
+    }
+
+    precioInput.classList.remove(
+        "is-invalid"
+    );
+
+    precioInput.classList.add(
+        "is-valid"
+    );
+
+    return true;
+}
+
+
+/* =========================
+   FORMATEAR Y VALIDAR PRECIO
 ========================= */
 
 if (precioInput) {
@@ -832,6 +874,8 @@ if (precioInput) {
 
                 this.value = "";
 
+                validarPrecio();
+
                 return;
             }
 
@@ -841,6 +885,8 @@ if (precioInput) {
                 ).format(
                     parseInt(valor, 10)
                 );
+
+            validarPrecio();
         }
     );
 }
@@ -900,6 +946,10 @@ if (formProducto) {
                     "is-invalid"
                 );
 
+                codigoInput.classList.remove(
+                    "is-valid"
+                );
+
                 valido = false;
 
             } else {
@@ -926,6 +976,10 @@ if (formProducto) {
                     "is-invalid"
                 );
 
+                nombreInput.classList.remove(
+                    "is-valid"
+                );
+
                 valido = false;
 
             } else {
@@ -948,6 +1002,10 @@ if (formProducto) {
                     "is-invalid"
                 );
 
+                categoriaInput.classList.remove(
+                    "is-valid"
+                );
+
                 valido = false;
 
             } else {
@@ -964,34 +1022,9 @@ if (formProducto) {
 
             /* PRECIO */
 
-            const precioNumerico =
-                precioInput.value.replace(
-                    /\D/g,
-                    ""
-                );
-
-
-            if (
-                precioNumerico === ""
-                ||
-                Number(precioNumerico) < 0
-            ) {
-
-                precioInput.classList.add(
-                    "is-invalid"
-                );
+            if (!validarPrecio()) {
 
                 valido = false;
-
-            } else {
-
-                precioInput.classList.remove(
-                    "is-invalid"
-                );
-
-                precioInput.classList.add(
-                    "is-valid"
-                );
             }
 
 
@@ -1011,6 +1044,10 @@ if (formProducto) {
 
                 stockMinimoInput.classList.add(
                     "is-invalid"
+                );
+
+                stockMinimoInput.classList.remove(
+                    "is-valid"
                 );
 
                 valido = false;
